@@ -1,0 +1,127 @@
+using System;
+using System.Collections.Generic;
+
+abstract class Room
+{
+    public abstract decimal PriceWalls { get; }
+    public abstract decimal PriceCeiling { get; }
+    public abstract decimal PriceFloor { get; }
+    public virtual double Quadrature { get; }
+}
+
+class LivingRoom : Room
+{
+    public override decimal PriceWalls { get { return 12; } }
+    public override decimal PriceCeiling { get { return 20; } }
+    public override decimal PriceFloor { get { return 10; } }
+    public override double Quadrature { get { return 20; } }
+}
+
+class BathRoom : Room
+{
+    public override decimal PriceWalls { get { return 20; } }
+    public override decimal PriceCeiling { get { return 25; } }
+    public override decimal PriceFloor { get { return 20; } }
+    public override double Quadrature { get { return 10; } }
+}
+
+class BedRoom : Room
+{
+    public override decimal PriceWalls { get { return 15; } }
+    public override decimal PriceCeiling { get { return 15; } }
+    public override decimal PriceFloor { get { return 8; } }
+    public override double Quadrature { get { return 15; } }
+}
+
+class Kitchen : Room
+{
+    public override decimal PriceWalls { get { return 10; } }
+    public override decimal PriceCeiling { get { return 12; } }
+    public override decimal PriceFloor { get { return 6; } }
+    public override double Quadrature { get { return 12; } }
+}
+
+abstract class Builder
+{
+    public virtual double Overcharge { get; }
+}
+
+class Noob : Builder
+{
+    public override double Overcharge { get { return -0.20; } }
+}
+
+class Mid : Builder
+{
+    public override double Overcharge { get { return 0.0; } }
+}
+
+class Pro : Builder
+{
+    public override double Overcharge { get { return 0.40; } }
+}
+
+class House
+{
+    private List<Room> rooms;
+
+    public House(List<Room> rooms)
+    {
+        this.rooms = rooms;
+    }
+
+    public decimal BuildCost(Builder builder)
+    {
+        decimal totalCost = 0;
+
+        foreach (Room room in rooms)
+        {
+            totalCost += CalculateWallCost(room) + CalculateCeilingCost(room) + CalculateFloorCost(room);
+        }
+
+        totalCost += totalCost * (decimal)builder.Overcharge;
+
+        return totalCost;
+    }
+
+    private decimal CalculateWallCost(Room room)
+    {
+        return (decimal)(room.Quadrature * 4 * (double)room.PriceWalls);
+    }
+
+    private decimal CalculateCeilingCost(Room room)
+    {
+        return (decimal)(room.Quadrature * (double)room.PriceCeiling);
+    }
+
+    private decimal CalculateFloorCost(Room room)
+    {
+        return (decimal)(room.Quadrature * (double)room.PriceFloor);
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        List<Room> rooms = new List<Room>();
+        rooms.Add(new LivingRoom());
+        rooms.Add(new BathRoom());
+        rooms.Add(new BedRoom());
+        rooms.Add(new Kitchen());
+
+        House house = new House(rooms);
+
+        Builder noobBuilder = new Noob();
+        Builder midBuilder = new Mid();
+        Builder proBuilder = new Pro();
+
+        decimal costForNoob = house.BuildCost(noobBuilder);
+        decimal costForMid = house.BuildCost(midBuilder);
+        decimal costForPro = house .BuildCost(proBuilder);
+
+        Console.WriteLine("Total build cost for Noob: $" + costForNoob);
+        Console.WriteLine("Total build cost for Mid: $" + costForMid);
+        Console.WriteLine("Total build cost for Pro: $" + costForPro);
+    }
+}
